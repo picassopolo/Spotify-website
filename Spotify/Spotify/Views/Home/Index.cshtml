@@ -1,0 +1,40 @@
+﻿@model TopTrackRoot
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Top 20</h1>
+    <div>
+
+            <h5>Top 20 artists listened</h5>
+
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Artiste</th>
+                        <th scope="col">Genres</th>
+                        <th scope="col">Spotify Page
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                        @foreach (Item item in Model.items)
+                        {
+                    <tr>
+                        <td>@Html.DisplayFor(model => item.name)</td>
+                        <td>@Html.DisplayFor(model => item.genres)</td>
+                        <td><a href= @Html.DisplayFor(model => item.external_urls.spotify)> Link </a></td>
+                        
+                    </tr>
+                      
+                        }
+                 
+                    <tr>
+                        
+                </tbody>
+            </table>
+
+
+</div>
