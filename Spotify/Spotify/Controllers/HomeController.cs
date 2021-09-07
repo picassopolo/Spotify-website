@@ -42,20 +42,39 @@ namespace Spotify.Controllers
         }
 
         [HttpGet]
-        public ContentResult Privacy()
+        public RedirectResult Login()
         {
             HttpClient client = new HttpClient();
-            client.BaseAddress = new Uri("https://accounts.spotify.com/authorize?client_id=f0aa1b6e083f43bd99735c1645e80dca&response_type=code&redirect_uri=https://spotifyapisimon.azurewebsites.net/home/");
-            var request = new HttpRequestMessage(HttpMethod.Get, "https://accounts.spotify.com/authorize?client_id=f0aa1b6e083f43bd99735c1645e80dca&response_type=code&redirect_uri=https://spotifyapisimon.azurewebsites.net/home/");
+            string url = "https://accounts.spotify.com/authorize" +
+                "?client_id=f0aa1b6e083f43bd99735c1645e80dca" +
+                "&response_type=code" +
+                "&redirect_uri=https://localhost:44324/Home/Callback/";
 
-            var response = client.GetAsync("https://accounts.spotify.com/authorize?client_id=f0aa1b6e083f43bd99735c1645e80dca&response_type=code&redirect_uri=https://spotifyapisimon.azurewebsites.net/home/");
+            //client.BaseAddress = new Uri(url);
+            //var request = new HttpRequestMessage(HttpMethod.Get, url);
 
-            var responseBody = response.Result.Content.ReadAsStringAsync().Result;
+            //var response = client.GetAsync(url);
 
+            //var responseBody = response.Result.Content.ReadAsStringAsync().Result;
 
-
-            return base.Content(responseBody, "text/html");
+            return Redirect(url);
         }
+
+        public async Task<IActionResult> Callback()
+        {
+            try
+            {
+                var token = await _spotifyAccountService.GetToken(_configuration["Spotify:ClientId"], _configuration["Spotify:ClientSecret"]);
+            }
+            catch (Exception ex)
+            {
+
+                Debug.Write(ex);
+            }
+
+            return View();
+        }
+
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
