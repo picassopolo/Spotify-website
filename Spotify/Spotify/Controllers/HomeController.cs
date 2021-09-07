@@ -10,42 +10,51 @@ using System.Threading.Tasks;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using Newtonsoft.Json;
+using Spotify.Services;
+using Microsoft.Extensions.Configuration;
 
 namespace Spotify.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly IspotifyAccountService _spotifyAccountService;
+        private readonly IConfiguration _configuration;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(IspotifyAccountService spotifyAccountService, IConfiguration configuration)
         {
-            _logger = logger;
+            this._spotifyAccountService = spotifyAccountService;
+            this._configuration = configuration;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-             string URL = "https://api.spotify.com/v1/me/top/artists";
+            try
+            {
+                var token = await _spotifyAccountService.GetToken(_configuration["Spotify:ClientId"], _configuration["Spotify:ClientSecret"]);
+            }
+            catch ( Exception ex)
+            {
 
+                Debug.Write(ex);
+            }
+            
+            return View();
+        }
+
+        [HttpGet]
+        public ContentResult Privacy()
+        {
             HttpClient client = new HttpClient();
-            client.BaseAddress = new Uri(URL);
+            client.BaseAddress = new Uri("https://accounts.spotify.com/authorize?client_id=f0aa1b6e083f43bd99735c1645e80dca&response_type=code&redirect_uri=https://spotifyapisimon.azurewebsites.net/home/");
+            var request = new HttpRequestMessage(HttpMethod.Get, "https://accounts.spotify.com/authorize?client_id=f0aa1b6e083f43bd99735c1645e80dca&response_type=code&redirect_uri=https://spotifyapisimon.azurewebsites.net/home/");
 
-            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "BQAy_n2XDHgSn3Z0ykpOmpTHtfS8si2mN6h6udyuemiPR6YSTe6ob1Jy69oZIBuEzBD8Jk-G_lkOu500G3UwWsEf3r4YJ0PFdx8qL87NS4QM3jmsH39qWCMn8HFof54EMXaY-9mds2lk7vgVU_1RyY5o7jSx5QE_8dBbBSUb3mw");
-
-            var request = new HttpRequestMessage(HttpMethod.Get, URL);
-
-            var response = client.GetAsync(URL);
+            var response = client.GetAsync("https://accounts.spotify.com/authorize?client_id=f0aa1b6e083f43bd99735c1645e80dca&response_type=code&redirect_uri=https://spotifyapisimon.azurewebsites.net/home/");
 
             var responseBody = response.Result.Content.ReadAsStringAsync().Result;
 
-            var test = JsonConvert.DeserializeObject<TopTrackRoot>(responseBody);
-            
-            return View(test);
-        }
 
-        public IActionResult Privacy()
-        {
-            return View();
+
+            return base.Content(responseBody, "text/html");
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
