@@ -37,9 +37,9 @@ namespace Spotify.Services
             response.EnsureSuccessStatusCode();
 
             using var responseStream = await response.Content.ReadAsStreamAsync();
-            var authResult = await JsonSerializer.DeserializeAsync<AuthResult>(responseStream);
+            //var authResult = await JsonSerializer.DeserializeAsync<AuthResult>(responseStream);
 
-            return authResult.access_token;
+            return null;
 
         }
 

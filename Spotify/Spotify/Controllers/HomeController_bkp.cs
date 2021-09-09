@@ -24,7 +24,7 @@ namespace Spotify.Controllers
 
         public IActionResult Index()
         {
-             string URL = "https://api.spotify.com/v1/me/top/artists";
+             string URL = "https://api.spotify.com/v1/me/top/artists?time_range=long_term&limit=50";
 
             HttpClient client = new HttpClient();
             client.BaseAddress = new Uri(URL);

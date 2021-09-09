@@ -1,17 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using Spotify.Models.TopTracks;
+using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using Spotify.Models;
+using Spotify.Models.TopTracks;
+using Spotify.Services;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using Newtonsoft.Json;
-using Spotify.Services;
-using Microsoft.Extensions.Configuration;
+using System.Threading.Tasks;
 
 namespace Spotify.Controllers
 {
@@ -28,51 +25,81 @@ namespace Spotify.Controllers
 
         public async Task<IActionResult> Index()
         {
-            try
-            {
-                var token = await _spotifyAccountService.GetToken(_configuration["Spotify:ClientId"], _configuration["Spotify:ClientSecret"]);
-            }
-            catch ( Exception ex)
-            {
+            string URL = "https://api.spotify.com/v1/me/top/artists?time_range=long_term&limit=50";
 
-                Debug.Write(ex);
-            }
-            
-            return View();
+            string token = (string)TempData["token"];
+
+            HttpClient client = new HttpClient();
+            client.BaseAddress = new Uri(URL);
+
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var request = new HttpRequestMessage(HttpMethod.Get, URL);
+
+            var response = await client.GetAsync(URL);
+
+            var responseBody = response.Content.ReadAsStringAsync().Result;
+
+            var test = JsonConvert.DeserializeObject<TopTrackRoot>(responseBody);
+
+            return View(test);
         }
 
         [HttpGet]
         public RedirectResult Login()
         {
-            HttpClient client = new HttpClient();
             string url = "https://accounts.spotify.com/authorize" +
                 "?client_id=f0aa1b6e083f43bd99735c1645e80dca" +
                 "&response_type=code" +
-                "&redirect_uri=https://localhost:44324/Home/Callback/";
-
-            //client.BaseAddress = new Uri(url);
-            //var request = new HttpRequestMessage(HttpMethod.Get, url);
-
-            //var response = client.GetAsync(url);
-
-            //var responseBody = response.Result.Content.ReadAsStringAsync().Result;
+                //"&redirect_uri=https://localhost:44324/Home/Callback/" +
+                "&redirect_uri=https://spotifyapisimon.azurewebsites.net/Home/Callback/" +
+            "&scope=user-top-read";
 
             return Redirect(url);
         }
 
         public async Task<IActionResult> Callback()
         {
-            try
-            {
-                var token = await _spotifyAccountService.GetToken(_configuration["Spotify:ClientId"], _configuration["Spotify:ClientSecret"]);
-            }
-            catch (Exception ex)
-            {
+            string code = HttpContext.Request.QueryString.ToString();
 
-                Debug.Write(ex);
-            }
+            string[] codes = code.Split('=');
 
-            return View();
+
+
+            var encodedData = Convert.ToBase64String(System.Text.Encoding.GetEncoding("ISO-8859-1").GetBytes(_configuration["Spotify:ClientId"] + ":" + _configuration["Spotify:ClientSecret"]));
+
+            string URL = "https://accounts.spotify.com/api/token" +
+                "?grant_type=authorization_code" +
+                "&code=" + codes[1] +
+                //"&redirect_uri=https://localhost:44324/Home/Callback/";
+                "&redirect_uri=https://spotifyapisimon.azurewebsites.net/Home/Callback/";
+
+
+            var httpClient = new HttpClient();
+
+            var request = new HttpRequestMessage(new HttpMethod("POST"), URL);
+
+            request.Headers.TryAddWithoutValidation("Authorization", "Basic " + encodedData);
+
+            request.Content = new StringContent("");
+            request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/x-www-form-urlencoded");
+
+            var response = await httpClient.SendAsync(request);
+
+            var responseBody = response.Content.ReadAsStringAsync().Result;
+
+            var test = JsonConvert.DeserializeObject<AccessToken>(responseBody);
+
+
+            string token = test.access_token;
+
+            TempData["token"] = token;
+
+            return RedirectToAction("index");
+
+
+
         }
 
 
