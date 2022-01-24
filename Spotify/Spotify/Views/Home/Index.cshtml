@@ -2,40 +2,76 @@
 @{
     ViewData["Title"] = "Home Page";
 }
+    <div class="row">
+        <div class="col">
+            <marquee>
+                "10/25/21 - A big thank you to Yahoo for for highlighting this website in their pick of the week! --- 09/05/21 - Added the ability to log in with Spotify." 
+            </marquee>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col">
+            <h1><img src="~/img/spotify-logo.gif" width="50"/><FONT COLOR="#FF0000"> S</FONT><FONT COLOR="#FF5A00">p</FONT><FONT COLOR="#FFB400">o</FONT><FONT COLOR="#A5ff00">t</FONT><FONT COLOR="#4Bff00">i</FONT><FONT COLOR="#00ff00">f</FONT><FONT COLOR="#00ff5A">y</FONT><FONT COLOR="#00ff00"> </FONT><blink><FONT COLOR="#00ffB4">S</FONT><FONT COLOR="#00ffff">t</FONT><FONT COLOR="#00B4ff">a</FONT><FONT COLOR="#005Aff">t</FONT><FONT COLOR="#0000ff">s</FONT><FONT COLOR="#4B00ff">!</FONT></blink><img src="~/img/spotify-logo.gif" width="50" /> </h1>
+            <p class="lead">The best way to know yourself is throught music</p>
+        </div>
+        <div class="col">
+            <div class="row">
+                <img src="~/img/yahooweek.gif" />
+                <img src="~/img/community.gif" />
+                <img src="~/img/wabwalk.gif" />
+                <img src="~/img/webtrips.gif" />
+            </div>
+            <div class="row justify-content-center" >
+                <img src="~/img/passwordpick.gif" />
+                <img src="~/img/webflier.gif" />
+            </div>
+        </div>       
+    </div>
 
-<div class="text-center">
+    <div class="row">
+        <div class="col">
+            <img src="~/img/ie_logo.gif" />
+            <img src="~/img/ns_logo.gif" />
+            <img src="~/img/noframes.gif" />
+            <img src="~/img/notepad.gif"  />
+        </div>
+    </div>
+  
+
     <h1 class="display-4">Top 50</h1>
     <div>
 
-            <h5>Top 50 artists listened</h5>
+        <h5>Top 50 artists listened</h5>
 
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th scope="col">Artiste</th>
-                        <th scope="col">Genres</th>
-                        <th scope="col">Spotify Page
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (Model.items is not null)
-                        @foreach (Item item in Model.items)
-                        {
-                    <tr>
-                        <td>@Html.DisplayFor(model => item.name)</td>
-                        <td>@Html.DisplayFor(model => item.genres)</td>
-                        <td><a href= @Html.DisplayFor(model => item.external_urls.spotify)> Link </a></td>
-                        
-                    </tr>
-                      
-                        }
-    
-                 
-                    <tr>
-                        
-                </tbody>
-            </table>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Artiste</th>
+                    <th scope="col">Genres</th>
+                    <th scope="col">
+                        Spotify Page
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.items is not null)
+                    @foreach (Item item in Model.items)
+                    {
+                        <tr>
+                            <td>@Html.DisplayFor(model => item.name)</td>
+                            <td>@Html.DisplayFor(model => item.genres)</td>
+                            <td><a href=@Html.DisplayFor(model => item.external_urls.spotify)> Link </a></td>
+
+                        </tr>
+
+                    }
 
 
-</div>
+                <tr>
+
+            </tbody>
+        </table>
+
+
+    </div>
